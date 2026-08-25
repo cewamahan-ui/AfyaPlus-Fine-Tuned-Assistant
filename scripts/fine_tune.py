@@ -99,7 +99,7 @@ def main():
         gradient_checkpointing=True,
         learning_rate=2e-4,
         lr_scheduler_type="cosine",
-        warmup_ratio=0.03,
+        warmup_steps=3,
         logging_steps=5,
         eval_strategy="steps",
         eval_steps=10,
