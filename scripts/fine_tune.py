@@ -118,7 +118,7 @@ def main():
         train_dataset=dataset["train"],
         eval_dataset=dataset["validation"],
         
-        max_seq_length=512,
+        
     )
 
     checkpoints = sorted(
