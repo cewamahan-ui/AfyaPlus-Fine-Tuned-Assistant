@@ -112,13 +112,13 @@ def main():
         report_to="none",
     )
 
-    trainer = SFTTrainer(
+        trainer = SFTTrainer(
         model=model,
         args=training_args,
         train_dataset=dataset["train"],
         eval_dataset=dataset["validation"],
-        
-        
+        formatting_func=format_example,
+        tokenizer=tokenizer,
     )
 
     checkpoints = sorted(
