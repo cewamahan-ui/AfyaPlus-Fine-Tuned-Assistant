@@ -1,21 +1,9 @@
 """
 fine_tune.py
 QLoRA fine-tuning of LLaMA 3.1 8B on the curated AfyaPlus dataset.
-
-OPTIMIZED FOR SPEED on Google Colab T4 GPU:
-- 2 epochs (not 3) - sufficient for 80 training examples
-- max_seq_length=512 (not 1024) - faster processing
-- Estimated runtime: ~20-30 minutes on T4 GPU
-
-Usage:
-    1. Clone repo: git clone https://github.com/cewamahan-ui/AfyaPlus-Fine-Tuned-Assistant
-    2. cd AfyaPlus-Fine-Tuned-Assistant
-    3. Runtime > Change runtime type > T4 GPU
-    4. Set HF_TOKEN in Secrets or run: from huggingface_hub import login; login()
-    5. python scripts/fine_tune.py
+Optimized for Google Colab T4 GPU - 2 epochs, ~20-30 min runtime.
 """
 
-import json
 import os
 import glob
 import torch
@@ -88,7 +76,6 @@ def main():
         "json",
         data_files={"train": "data/train.jsonl", "validation": "data/val.jsonl"},
     )
-    dataset = dataset.map(format_example)
 
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
