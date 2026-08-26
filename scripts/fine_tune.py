@@ -52,7 +52,7 @@ def format_example(ex):
         f"<|start_header_id|>user<|end_header_id|>\n\n{user}<|eot_id|>"
         f"<|start_header_id|>assistant<|end_header_id|>\n\n{ex['output']}<|eot_id|>"
     )
-    return {"text": text}
+    return text
 
 
 def main():
