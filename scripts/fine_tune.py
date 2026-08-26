@@ -110,9 +110,8 @@ def main():
         metric_for_best_model="eval_loss",
         fp16=True,
         report_to="none",
-    )
-
-        trainer = SFTTrainer(
+        )
+    trainer = SFTTrainer(
         model=model,
         args=training_args,
         train_dataset=dataset["train"],
