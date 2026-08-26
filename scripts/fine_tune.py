@@ -110,14 +110,14 @@ def main():
         metric_for_best_model="eval_loss",
         fp16=True,
         report_to="none",
-        )
+    )
+
     trainer = SFTTrainer(
         model=model,
         args=training_args,
         train_dataset=dataset["train"],
         eval_dataset=dataset["validation"],
         formatting_func=format_example,
-        tokenizer=tokenizer,
     )
 
     checkpoints = sorted(
