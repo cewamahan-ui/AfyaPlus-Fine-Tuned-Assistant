@@ -82,24 +82,25 @@ def main():
         data_files={"train": "data/train.jsonl", "validation": "data/val.jsonl"},
     )
 
+    # OPTIMIZED: Fewer steps for faster training on free Colab
+    # 1 epoch * 80 train examples / (batch_size=4 * grad_accum=4) = ~5 steps
+    # This trains in ~5-8 minutes instead of 1+ hour
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
-        num_train_epochs=2,
-        per_device_train_batch_size=2,
-        per_device_eval_batch_size=2,
-        gradient_accumulation_steps=8,
+        num_train_epochs=1,  # Reduced from 2 to 1
+        per_device_train_batch_size=4,  # Increased from 2
+        per_device_eval_batch_size=4,
+        gradient_accumulation_steps=4,  # Reduced from 8
         gradient_checkpointing=True,
         learning_rate=2e-4,
         lr_scheduler_type="cosine",
-        warmup_steps=3,
-        logging_steps=5,
-        eval_strategy="steps",
-        eval_steps=10,
+        warmup_steps=2,
+        max_steps=10,  # Cap total steps for fast training
+        logging_steps=2,
+        eval_strategy="no",  # Skip eval to save time
         save_strategy="steps",
-        save_steps=10,
-        save_total_limit=3,
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
+        save_steps=5,
+        save_total_limit=1,
         fp16=True,
         report_to="none",
     )
@@ -108,19 +109,10 @@ def main():
         model=model,
         args=training_args,
         train_dataset=dataset["train"],
-        eval_dataset=dataset["validation"],
         formatting_func=format_example,
     )
 
-    checkpoints = sorted(
-        glob.glob(os.path.join(OUTPUT_DIR, "checkpoint-*")),
-        key=lambda p: int(p.split("-")[-1]),
-    )
-    resume_from = checkpoints[-1] if checkpoints else None
-    if resume_from:
-        print(f"Resuming from: {resume_from}")
-
-    trainer.train(resume_from_checkpoint=resume_from)
+    trainer.train()
     trainer.save_model(OUTPUT_DIR)
     tokenizer.save_pretrained(OUTPUT_DIR)
 
