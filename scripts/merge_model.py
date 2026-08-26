@@ -10,9 +10,21 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
+import os
+
 BASE_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-ADAPTER_DIR = "afyaplus-lora-adapter"
-MERGED_DIR = "afyaplus-merged-model"
+# Auto-detect Drive if running on Colab
+if os.path.exists("/content/drive/MyDrive/afyaplus-capstone/"):
+    ADAPTER_DIR = "/content/drive/MyDrive/afyaplus-capstone/afyaplus-lora-adapter"
+    MERGED_DIR = "/content/drive/MyDrive/afyaplus-capstone/afyaplus-merged-model"
+    # Also copy to local for easy access
+    import shutil
+    if os.path.exists(ADAPTER_DIR):
+        shutil.copytree(ADAPTER_DIR, "afyaplus-lora-adapter", dirs_exist_ok=True)
+        print(f"Copied adapter to local: afyaplus-lora-adapter/")
+else:
+    ADAPTER_DIR = "afyaplus-lora-adapter"
+    MERGED_DIR = "afyaplus-merged-model"
 
 
 def main():

@@ -18,7 +18,12 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer
 
 MODEL_NAME = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-OUTPUT_DIR = "afyaplus-lora-adapter"
+# Auto-detect Drive if running on Colab
+if os.path.exists("/content/drive/MyDrive/afyaplus-capstone/"):
+    OUTPUT_DIR = "/content/drive/MyDrive/afyaplus-capstone/afyaplus-lora-adapter"
+else:
+    OUTPUT_DIR = "afyaplus-lora-adapter"
+print(f"Output dir: {OUTPUT_DIR}")
 
 SYSTEM_PROMPT = (
     "You are AfyaPlus, an operational assistant for a community health "
@@ -124,3 +129,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
