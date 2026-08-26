@@ -116,7 +116,8 @@ def main():
     trainer.save_model(OUTPUT_DIR)
     tokenizer.save_pretrained(OUTPUT_DIR)
 
-    print(f"\nDone! Adapter saved to {OUTPUT_DIR}/")
+    print(f"\n✅ Done! Adapter saved to {OUTPUT_DIR}/")
+    print("Next: run merge_model.py then local_inference.py")
 
 
 if __name__ == "__main__":
