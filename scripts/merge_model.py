@@ -12,7 +12,7 @@ from peft import PeftModel
 
 import os
 
-BASE_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+BASE_MODEL = "NousResearch/Meta-Llama-3.1-8B-Instruct"
 # Auto-detect Drive if running on Colab
 if os.path.exists("/content/drive/MyDrive/afyaplus-capstone/"):
     ADAPTER_DIR = "/content/drive/MyDrive/afyaplus-capstone/afyaplus-lora-adapter"

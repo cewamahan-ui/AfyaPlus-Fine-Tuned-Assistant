@@ -1,7 +1,7 @@
 """
 fine_tune.py
-QLoRA fine-tuning of LLaMA 3.1 8B on the curated AfyaPlus dataset.
-Optimized for Google Colab T4 GPU - 2 epochs, ~20-30 min runtime.
+QLoRA fine-tuning of LLaMA 3.1 8B on the AfyaPlus dataset.
+OPTIMIZED: batch_size=1, max_steps=8, paged optimizer -> ~10 mins
 """
 
 import os
@@ -17,8 +17,7 @@ from transformers import (
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer
 
-MODEL_NAME = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-# Auto-detect Drive if running on Colab
+MODEL_NAME = "NousResearch/Meta-Llama-3.1-8B-Instruct"
 if os.path.exists("/content/drive/MyDrive/afyaplus-capstone/"):
     OUTPUT_DIR = "/content/drive/MyDrive/afyaplus-capstone/afyaplus-lora-adapter"
 else:
@@ -35,7 +34,6 @@ SYSTEM_PROMPT = (
     "immediately per Kenya MOH community health protocols."
 )
 
-
 def format_example(ex):
     user = ex["instruction"]
     if ex.get("input"):
@@ -47,8 +45,8 @@ def format_example(ex):
     )
     return text
 
-
 def main():
+    # 4-bit quantization for memory efficiency
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
@@ -82,27 +80,26 @@ def main():
         data_files={"train": "data/train.jsonl", "validation": "data/val.jsonl"},
     )
 
-    # OPTIMIZED: Fewer steps for faster training on free Colab
-    # 1 epoch * 80 train examples / (batch_size=4 * grad_accum=4) = ~5 steps
-    # This trains in ~5-8 minutes instead of 1+ hour
+    # OPTIMIZED: batch=1, grad_accum=8, max_steps=10 -> ~15 mins on T4
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
-        num_train_epochs=1,  # Reduced from 2 to 1
-        per_device_train_batch_size=4,  # Increased from 2
-        per_device_eval_batch_size=4,
-        gradient_accumulation_steps=4,  # Reduced from 8
+        num_train_epochs=1,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
+        gradient_accumulation_steps=8,
         gradient_checkpointing=True,
-        learning_rate=2e-4,
+        learning_rate=3e-4,
         lr_scheduler_type="cosine",
-        warmup_steps=2,
-        max_steps=10,  # Cap total steps for fast training
+        warmup_ratio=0.1,
+        max_steps=10,
         logging_steps=2,
-        eval_strategy="no",  # Skip eval to save time
+        eval_strategy="no",
         save_strategy="steps",
         save_steps=5,
         save_total_limit=1,
         fp16=True,
         report_to="none",
+        optim="paged_adamw_8bit",
     )
 
     trainer = SFTTrainer(
@@ -110,16 +107,15 @@ def main():
         args=training_args,
         train_dataset=dataset["train"],
         formatting_func=format_example,
+        max_seq_length=256,
     )
 
     trainer.train()
     trainer.save_model(OUTPUT_DIR)
     tokenizer.save_pretrained(OUTPUT_DIR)
 
-    print(f"\n✅ Done! Adapter saved to {OUTPUT_DIR}/")
-    print("Next: run merge_model.py then local_inference.py")
-
+    print(f"\n Done! Adapter saved to {OUTPUT_DIR}/")
+    print("Next: python scripts/merge_model.py")
 
 if __name__ == "__main__":
     main()
-

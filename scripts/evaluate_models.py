@@ -17,7 +17,7 @@ from rouge_score import rouge_scorer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import google.generativeai as genai
 
-BASE_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+BASE_MODEL = "NousResearch/Meta-Llama-3.1-8B-Instruct"
 MERGED_DIR = "afyaplus-merged-model"
 TEST_FILE = "data/test.jsonl"
 OUT_CSV = "comparison_results.csv"
